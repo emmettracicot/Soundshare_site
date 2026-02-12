@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Link Organizer</title>
+  <style>
+    :root{
+  --bg1:#000000;
+  --bg2:#121212;
+  --card:#181818;
+  --card2:#1f1f1f;
+  --border:#2a2a2a;
+  --text:#ffffff;
+  --muted:#b3b3b3;
+
+  --accent:#1DB954;      /* Spotify Green */
+  --accent2:#1ed760;     /* Lighter hover green */
+  --danger:#e22134;      
+
+  --shadow: 0 10px 25px rgba(0,0,0,.6);
+  --radius: 14px;
+}
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--text);
+  min-height:100vh;
+  background: linear-gradient(to bottom, #000000, #121212);
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 26px 18px 60px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom: 18px;
+    }
+
+    h1{
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: .2px;
+    }
+
+    .subtitle{
+      margin: 6px 0 0;
+      color:var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+      max-width: 62ch;
+    }
+
+    .card{
+  background: #181818;
+  border: 1px solid #282828;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+    .controls{
+      padding: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    input{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(10,14,28,.55);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      outline: none;
+      min-width: 240px;
+      transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    input::placeholder{ color: rgba(255,255,255,.45); }
+    input:focus{
+      border-color: rgba(124,58,237,.7);
+      box-shadow: 0 0 0 4px rgba(124,58,237,.18);
+      background: rgba(10,14,28,.7);
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor:pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.24);
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn:focus-visible{
+      outline:none;
+      box-shadow: 0 0 0 4px rgba(124,58,237,.18);
+      border-color: rgba(124,58,237,.7);
+    }
+
+    .btn.primary{
+      background: var(--accent);
+  border: none;
+  color: black;
+  font-weight: 600;
+    }
+    .btn.primary:hover{
+      background: var(--accent2);
+      }
+
+    .btn.danger{
+      background: linear-gradient(180deg, rgba(239,68,68,.95), rgba(239,68,68,.75));
+      border-color: rgba(239,68,68,.65);
+    }
+    .btn.danger:hover{
+      background: linear-gradient(180deg, rgba(239,68,68,1), rgba(239,68,68,.82));
+    }
+
+    .btn.ghost{
+      background: rgba(255,255,255,.06);
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+
+    .category{
+      grid-column: span 12;
+      padding: 14px;
+      overflow:hidden;
+      position:relative;
+      animation: popIn .25s ease both;
+    }
+
+    @keyframes popIn{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    .category::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(650px 140px at 20% 0%, rgba(124,58,237,.18), transparent 60%),
+                  radial-gradient(650px 140px at 80% 0%, rgba(34,197,94,.14), transparent 60%);
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .category > *{ position:relative; }
+
+    .catHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+
+    .catTitleRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .catTitle{
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: .2px;
+    }
+
+    .count{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+    }
+
+    .catActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .addRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 8px;
+    }
+
+    ul{
+      list-style:none;
+      padding:0;
+      margin: 12px 0 0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .linkItem{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+      animation: popIn .2s ease both;
+    }
+    .linkItem:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.085);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .linkMain{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width: 220px;
+    }
+
+    a{
+  color: var(--accent);
+  text-decoration:none;
+  font-weight:600;
+}
+
+a:hover{
+  text-decoration: underline;
+}
+    .url{
+      color: var(--muted);
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .linkActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .empty{
+      color: var(--muted);
+      font-size: 13px;
+      padding: 8px 2px 2px;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.55);
+      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 10px 12px;
+      border-radius: 999px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      font-size: 13px;
+      max-width: min(560px, 92vw);
+      text-align:center;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-6px);
+    }
+
+    @media (min-width: 860px){
+      .category{ padding: 16px; }
+      input{ min-width: 280px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Link Organizer</h1>
+        <p class="subtitle">
+          Categories work like folders. Add links inside them. Everything is saved in your browser (localStorage).
+        </p>
+      </div>
+      <div class="pill" title="Saved locally in your browser">
+        💾 Local Save Enabled
+      </div>
+    </div>
+
+    <div class="card controls">
+      <input id="newCategoryName" type="text" placeholder="New category name (e.g., School)" />
+      <button id="addCategoryBtn" class="btn primary">➕ Add Category</button>
+      <button id="resetBtn" class="btn danger">🗑️ Reset All</button>
+    </div>
+
+    <div id="categories" class="grid"></div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ---------- Storage ----------
+    const STORAGE_KEY = "linkOrganizer.v2.polished";
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : { categories: [] };
+      } catch {
+        return { categories: [] };
+      }
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    // ---------- State ----------
+    let data = loadData();
+
+    // ---------- Helpers ----------
+    function uid() {
+      return Math.random().toString(16).slice(2) + Date.now().toString(16);
+    }
+
+    function normalizeUrl(url) {
+      const trimmed = url.trim();
+      if (!trimmed) return "";
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return "https://" + trimmed;
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove("show"), 1400);
+    }
+
+    function findCategory(catId) {
+      return data.categories.find(c => c.id === catId);
+    }
+
+    // ---------- Render ----------
+    function render() {
+      const container = document.getElementById("categories");
+      container.innerHTML = "";
+
+      if (data.categories.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "card";
+        empty.style.padding = "14px";
+        empty.style.gridColumn = "span 12";
+        empty.innerHTML = `<div class="empty">No categories yet. Add one above.</div>`;
+        container.appendChild(empty);
+        return;
+      }
+
+      data.categories.forEach(category => {
+        const wrap = document.createElement("div");
+        wrap.className = "card category";
+
+        // Header
+        const header = document.createElement("div");
+        header.className = "catHeader";
+
+        const left = document.createElement("div");
+        left.className = "catTitleRow";
+
+        const title = document.createElement("div");
+        title.className = "catTitle";
+        title.textContent = category.name;
+
+        const count = document.createElement("div");
+        count.className = "count";
+        count.textContent = `${category.links.length} link${category.links.length === 1 ? "" : "s"}`;
+
+        left.appendChild(title);
+        left.appendChild(count);
+
+        const actions = document.createElement("div");
+        actions.className = "catActions";
+
+        const renameBtn = document.createElement("button");
+        renameBtn.className = "btn ghost";
+        renameBtn.textContent = "✏️ Rename";
+        renameBtn.onclick = () => {
+          const newName = prompt("New category name:", category.name);
+          if (newName && newName.trim()) {
+            category.name = newName.trim();
+            saveData(data);
+            render();
+            toast("Category renamed");
+          }
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn danger";
+        deleteBtn.textContent = "🗑️ Delete";
+        deleteBtn.onclick = () => {
+          if (confirm(`Delete category "${category.name}" and all its links?`)) {
+            data.categories = data.categories.filter(c => c.id !== category.id);
+            saveData(data);
+            render();
+            toast("Category deleted");
+          }
+        };
+
+        actions.appendChild(renameBtn);
+        actions.appendChild(deleteBtn);
+
+        header.appendChild(left);
+        header.appendChild(actions);
+
+        // Add link row
+        const addRow = document.createElement("div");
+        addRow.className = "addRow";
+
+        const linkName = document.createElement("input");
+        linkName.type = "text";
+        linkName.placeholder = "Link name (e.g., Canvas)";
+        linkName.setAttribute("aria-label", "Link name");
+
+        const linkUrl = document.createElement("input");
+        linkUrl.type = "text";
+        linkUrl.placeholder = "URL (e.g., https://example.com)";
+        linkUrl.setAttribute("aria-label", "Link URL");
+
+        const addLinkBtn = document.createElement("button");
+        addLinkBtn.className = "btn primary";
+        addLinkBtn.textContent = "➕ Add Link";
+
+        function addLink() {
+          const n = linkName.value.trim();
+          const u = normalizeUrl(linkUrl.value);
+
+          if (!n) return toast("Please enter a link name");
+          if (!u) return toast("Please enter a URL");
+
+          category.links.push({ id: uid(), name: n, url: u });
+          linkName.value = "";
+          linkUrl.value = "";
+          saveData(data);
+          render();
+          toast("Link added");
+        }
+
+        addLinkBtn.onclick = addLink;
+
+        // Enter key submits
+        linkName.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") addLink();
+        });
+        linkUrl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") addLink();
+        });
+
+        addRow.appendChild(linkName);
+        addRow.appendChild(linkUrl);
+        addRow.appendChild(addLinkBtn);
+
+        // Links list
+        const list = document.createElement("ul");
+
+        if (category.links.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No links in this category yet.";
+          wrap.appendChild(header);
+          wrap.appendChild(addRow);
+          wrap.appendChild(empty);
+          container.appendChild(wrap);
+          return;
+        }
+
+        category.links.forEach(link => {
+          const item = document.createElement("li");
+          item.className = "linkItem";
+
+          const main = document.createElement("div");
+          main.className = "linkMain";
+
+          const a = document.createElement("a");
+          a.href = link.url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = link.name;
+
+          const urlSpan = document.createElement("div");
+          urlSpan.className = "url";
+          urlSpan.textContent = link.url;
+
+          main.appendChild(a);
+          main.appendChild(urlSpan);
+
+          const linkActions = document.createElement("div");
+          linkActions.className = "linkActions";
+
+          const editBtn = document.createElement("button");
+          editBtn.className = "btn ghost";
+          editBtn.textContent = "✏️ Edit";
+          editBtn.onclick = () => {
+            const newName = prompt("New link name:", link.name);
+            if (newName === null) return;
+
+            const newUrl = prompt("New URL:", link.url);
+            if (newUrl === null) return;
+
+            const n = newName.trim();
+            const u = normalizeUrl(newUrl);
+
+            if (!n) return toast("Link name can't be empty");
+            if (!u) return toast("URL can't be empty");
+
+            link.name = n;
+            link.url = u;
+            saveData(data);
+            render();
+            toast("Link updated");
+          };
+
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "btn danger";
+          removeBtn.textContent = "🗑️ Remove";
+          removeBtn.onclick = () => {
+            if (confirm(`Remove "${link.name}"?`)) {
+              category.links = category.links.filter(l => l.id !== link.id);
+              saveData(data);
+              render();
+              toast("Link removed");
+            }
+          };
+
+          linkActions.appendChild(editBtn);
+          linkActions.appendChild(removeBtn);
+
+          item.appendChild(main);
+          item.appendChild(linkActions);
+
+          list.appendChild(item);
+        });
+
+        wrap.appendChild(header);
+        wrap.appendChild(addRow);
+        wrap.appendChild(list);
+        container.appendChild(wrap);
+      });
+    }
+ 
+    // ---------- Events ----------
+    const catInput = document.getElementById("newCategoryName");
+
+    document.getElementById("addCategoryBtn").addEventListener("click", () => {
+      const name = catInput.value.trim();
+      if (!name) return toast("Please enter a category name");
+
+      data.categories.push({ id: uid(), name, links: [] });
+      catInput.value = "";
+      saveData(data);
+      render();
+      toast("Category added");
+    });
+
+    catInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("addCategoryBtn").click();
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (confirm("Reset everything? This deletes all categories and links.")) {
+        data = { categories: [] };
+        saveData(data);
+        render();
+        toast("All data cleared");
+      }
+    });
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
